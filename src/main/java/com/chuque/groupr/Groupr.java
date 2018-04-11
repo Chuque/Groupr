@@ -3,13 +3,12 @@ package com.chuque.groupr;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.stream.Stream;
 
 public class Groupr<T> {
 
     private ArrayList<T> initialList;
-    private HashMap<String, ArrayList<T>> groupedMap;
+    private HashMap<Object, ArrayList<T>> groupedMap;
     private String fieldName;
 
     public Groupr(ArrayList<T> list, String orderBy) {
@@ -24,25 +23,10 @@ public class Groupr<T> {
             System.out.println(field.getName());
         }*/
 
-        //exibe lista desordenada
-        System.out.println("Desordenada:");
-        for(Object item : initialList){
-            System.out.println(item.toString());
-        }
-
         group();
-
-        //exibe lista ordenada
-        System.out.println("Ordenada:");
-        for (Map.Entry<String, ArrayList<T>> entry : groupedMap.entrySet()){
-            System.out.println("Chave: " + entry.getKey());
-            for (Object item : entry.getValue()){
-                System.out.println(item.getClass());
-            }
-        }
     }
 
-    public HashMap<String, ArrayList<T>> getGroupedMap() {
+    public HashMap<Object, ArrayList<T>> getGroupedMap() {
         return groupedMap;
     }
 
@@ -50,14 +34,12 @@ public class Groupr<T> {
         groupedMap = new HashMap<>();
 
         for(T item : initialList){
-            String keyName = new String();
+            Object keyName = new Object();
             try {
                 Field field = item.getClass().getDeclaredField(fieldName);
                 field.setAccessible(true);
-                keyName = (String)field.get(item);
-            } catch (NoSuchFieldException e) {
-                e.printStackTrace();
-            } catch (IllegalAccessException e) {
+                keyName = field.get(item);
+            } catch (NoSuchFieldException | IllegalAccessException e) {
                 e.printStackTrace();
             }
 
@@ -70,4 +52,13 @@ public class Groupr<T> {
             }
         }
     }
+
+    private void groupWithStream(){
+        //TODO implementar agrupamento por Streams
+        groupedMap = new HashMap<>();
+
+        Stream<ArrayList<T>> stream = Stream.of(this.initialList);
+    }
+
+
 }
